@@ -24,4 +24,11 @@
 		<nature>org.eclipse.cdt.managedbuilder.core.ScannerConfigNature</nature>
 		<nature>de.innot.avreclipse.core.avrnature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>uart</name>
+			<type>2</type>
+			<locationURI>PARENT-1-PROJECT_LOC/avrlibs/uart</locationURI>
+		</link>
+	</linkedResources>
 </projectDescription>

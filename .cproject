@@ -31,7 +31,7 @@
 								<option id="de.innot.avreclipse.compiler.option.debug.level.870246212" name="Generate Debugging Info" superClass="de.innot.avreclipse.compiler.option.debug.level" value="de.innot.avreclipse.compiler.option.debug.level.none" valueType="enumerated"/>
 								<option id="de.innot.avreclipse.compiler.option.optimize.834759183" name="Optimization Level" superClass="de.innot.avreclipse.compiler.option.optimize" value="de.innot.avreclipse.compiler.optimize.size" valueType="enumerated"/>
 								<option id="de.innot.avreclipse.compiler.option.incpath.134622982" name="Include Paths (-I)" superClass="de.innot.avreclipse.compiler.option.incpath" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/avrlibs/uart}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/uart}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/owatmellib/src}&quot;"/>
 								</option>
 								<inputType id="de.innot.avreclipse.compiler.winavr.input.1267259338" name="C Source Files" superClass="de.innot.avreclipse.compiler.winavr.input"/>
@@ -42,10 +42,10 @@
 							</tool>
 							<tool id="de.innot.avreclipse.tool.linker.winavr.app.release.1434576951" name="AVR C Linker" superClass="de.innot.avreclipse.tool.linker.winavr.app.release">
 								<option id="de.innot.avreclipse.linker.option.libs.472455444" name="Libraries (-l)" superClass="de.innot.avreclipse.linker.option.libs" valueType="libs">
-									<listOptionValue builtIn="false" value="avrlibs"/>
+									<listOptionValue builtIn="false" value="owatmellib"/>
 								</option>
 								<option id="de.innot.avreclipse.linker.option.libpath.80951314" name="Libraries Path (-L)" superClass="de.innot.avreclipse.linker.option.libpath" valueType="stringList">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/avrlibs/Release}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/owatmellib/Release}&quot;"/>
 								</option>
 								<inputType id="de.innot.avreclipse.tool.linker.input.733954920" name="OBJ Files" superClass="de.innot.avreclipse.tool.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>

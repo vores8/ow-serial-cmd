@@ -8,6 +8,9 @@
 #ifndef CONSTANTS_H_
 #define CONSTANTS_H_
 
+#define TRUE 1
+#define FALSE 0
+
    /** Default port for NetAdapter TCP/IP connection */
 #define DEFAULT_PORT 6161
 

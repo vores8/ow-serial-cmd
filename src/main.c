@@ -8,25 +8,36 @@
 #include <uart.h>
 #include <polled/OWIBitFunctions.h>
 #include <polled/OWIHighLevelFunctions.h>
+#include <common_files/OWIcrc.h>
 
 #include "constants.h"
-#include "tmexapi.h"
+
+#define NUM_BUSES 	3
 
 int currentBus = 0;
 unsigned char BUSES = 0;
 int numBuses = 0;
 int _presence = 0;
 
-unsigned char buses[5] = { OWI_PIN_3, OWI_PIN_4, OWI_PIN_5, OWI_PIN_6, OWI_PIN_7 };
+unsigned char ROM_NO[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+int LastDiscrepancy;
+int LastFamilyDiscrepancy;
+int LastDeviceFlag;
+unsigned char crc8;
+
+unsigned char buses[5] =
+		{ OWI_PIN_3, OWI_PIN_4, OWI_PIN_5, OWI_PIN_6, OWI_PIN_7 };
 
 #define MAX_DATABLOCK	64
 
 void closeConnection(void) {
-
+	uart_putc(RET_SUCCESS);
+	uart_flush();
 }
 
 void adapterReset(void) {
-
+	uart_putc(RET_SUCCESS);
+	uart_flush();
 }
 
 void adapterPutBit(void) {
@@ -114,9 +125,202 @@ void adapterDataBlock(void) {
 	uart_flush();
 }
 
+void adapterSetPowerDuration(void) {
+	uart_getc();
+	uart_putc(RET_SUCCESS);
+	uart_flush();
+}
+
+void adapterStartPowerDelivery(void) {
+	uart_getc();
+	uart_putc(RET_SUCCESS);
+	uart_putc(FALSE);
+	uart_flush();
+}
+
+void adapterSetProgramPulseDuration(void) {
+	uart_getc();
+	uart_putc(RET_SUCCESS);
+	uart_flush();
+}
+
+void adapterStartProgramPulse(void) {
+	uart_getc();
+	uart_putc(RET_SUCCESS);
+	uart_flush();
+}
+
+void adapterStartBreak(void) {
+	uart_putc(RET_SUCCESS);
+	uart_flush();
+}
+
+void adapterSetPowerNormal(void) {
+	uart_putc(RET_SUCCESS);
+	uart_flush();
+}
+
+void adapterSetSpeed(void) {
+	uart_getc();
+	uart_putc(RET_SUCCESS);
+	uart_flush();
+}
+
+void adapterGetSpeed(void) {
+	uart_putc(RET_SUCCESS);
+	uart_putc(0); //always return SPEED_REGULAR
+	uart_flush();
+}
+
+void adapterBeginExclusive(void) {
+	uart_putc(RET_SUCCESS);
+	uart_flush();
+}
+
+void adapterEndExclusive(void) {
+	uart_putc(RET_SUCCESS);
+	uart_flush();
+}
+
+int OWSearch() {
+
+	if (LastDeviceFlag) {
+		// reset the search
+		LastDiscrepancy = 0;
+		LastDeviceFlag = FALSE;
+		LastFamilyDiscrepancy = 0;
+		currentBus = 0;
+		return FALSE;
+	}
+
+	while (!(_presence & buses[currentBus])) {
+		currentBus++;
+	}
+
+	if (currentBus == numBuses) {
+		LastDeviceFlag = TRUE;
+		return FALSE;
+	} else {
+
+		OWI_DetectPresence(buses[currentBus]);
+		LastDiscrepancy = OWI_SearchRom(ROM_NO, LastDiscrepancy,
+				buses[currentBus]);
+		if (LastDiscrepancy == OWI_ROM_SEARCH_FINISHED) {
+			currentBus++;
+		}
+	}
+	return OWI_CheckRomCRC(ROM_NO) == OWI_CRC_OK;
+}
+
+void adapterFindFirstDevice(void) {
+	// reset the search state
+	LastDiscrepancy = 0;
+	LastDeviceFlag = FALSE;
+	LastFamilyDiscrepancy = 0;
+	currentBus = 0;
+	_presence = OWI_DetectPresence(BUSES);
+	uart_putc(RET_SUCCESS);
+	uart_putc(OWSearch());
+	uart_flush();
+}
+
+void adapterFindNextDevice(void) {
+	uart_putc(RET_SUCCESS);
+	uart_putc(OWSearch());
+	uart_flush();
+}
+
+void adapterGetAddress(void) {
+	uart_putc(RET_SUCCESS);
+	for (int i = 0; i < 8; i++) {
+		uart_putc(ROM_NO[i]);
+	}
+	uart_flush();
+}
+
+void adapterSetSearchOnlyAlarmingDevices(void) {
+	uart_putc(RET_SUCCESS);
+	uart_flush();
+}
+
+void adapterSetNoResetSearch(void) {
+	uart_putc(RET_SUCCESS);
+	uart_flush();
+}
+
+void adapterSetSearchAllDevices(void) {
+	uart_putc(RET_SUCCESS);
+	uart_flush();
+}
+
+void adapterTargetAllFamilies(void) {
+	uart_putc(RET_SUCCESS);
+	uart_flush();
+}
+
+void adapterTargetFamily(void) {
+	uart_getc();
+	uart_putc(RET_SUCCESS);
+	uart_flush();
+}
+
+void adapterExcludeFamily(void) {
+	uart_getc();
+	uart_putc(RET_SUCCESS);
+	uart_flush();
+}
+
+void adapterCanBreak(void) {
+	uart_putc(RET_SUCCESS);
+	uart_putc(FALSE);
+	uart_flush();
+}
+
+void adapterCanDeliverPower(void) {
+	uart_putc(RET_SUCCESS);
+	uart_putc(FALSE);
+	uart_flush();
+}
+
+void adapterCanDeliverSmartPower(void) {
+	uart_putc(RET_SUCCESS);
+	uart_putc(FALSE);
+	uart_flush();
+}
+
+void adapterCanFlex(void) {
+	uart_putc(RET_SUCCESS);
+	uart_putc(FALSE);
+	uart_flush();
+}
+
+void adapterCanHyperdrive(void) {
+	uart_putc(RET_SUCCESS);
+	uart_putc(FALSE);
+	uart_flush();
+}
+
+void adapterCanOverdrive(void) {
+	uart_putc(RET_SUCCESS);
+	uart_putc(FALSE);
+	uart_flush();
+}
+
+void adapterCanProgram(void) {
+	uart_putc(RET_SUCCESS);
+	uart_putc(FALSE);
+	uart_flush();
+}
+
 int main(void) {
 
 	uart_init(UART_BAUD_SELECT_DOUBLE_SPEED(9600, F_CPU));
+
+	BUSES = 0;
+	numBuses = NUM_BUSES > 5 ? 5 : NUM_BUSES;
+	for (int i = 0; i < numBuses; i++)
+		BUSES |= buses[i];
+	OWI_Init(BUSES);
 
 	while (1) {
 
