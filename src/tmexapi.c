@@ -5,7 +5,23 @@
  *      Author: dbkrasn
  */
 
+#include <uart.h>
+#include <polled/OWIBitFunctions.h>
+#include <polled/OWIHighLevelFunctions.h>
+
+#include "constants.h"
 #include "tmexapi.h"
+
+int currentBus = 0;
+unsigned char BUSES = 0;
+int numBuses = 0;
+int _presence = 0;
+
+unsigned char buses[5] = { OWI_PIN_3, OWI_PIN_4, OWI_PIN_5, OWI_PIN_6, OWI_PIN_7 };
+
+#define MAX_DATABLOCK	64
+
+
 
 // global search state
 unsigned char ROM_NO[8];
@@ -258,7 +274,7 @@ int OWReset()
 {
    // platform specific
    // TMEX API TEST BUILD
-   return (TMTouchReset(session_handle) == 1);
+   return TRUE;
 }
 
 //--------------------------------------------------------------------------
@@ -267,20 +283,20 @@ int OWReset()
 void OWWriteByte(unsigned char byte_value)
 {
    // platform specific
-
-   // TMEX API TEST BUILD
-   TMTouchByte(session_handle,byte_value);
+	OWI_SendByte(byte_value, buses[currentBus]);
 }
 
 //--------------------------------------------------------------------------
-// Send 1 bit of data to teh 1-Wire bus
+// Send 1 bit of data to the 1-Wire bus
 //
 void OWWriteBit(unsigned char bit_value)
 {
    // platform specific
-
-   // TMEX API TEST BUILD
-   TMTouchBit(session_handle,(short)bit_value);
+	if (bit_value == 0) {
+		OWI_WriteBit0(buses[currentBus]);
+	} else if (bit_value == 1) {
+		OWI_WriteBit1(buses[currentBus]);
+	}
 }
 
 //--------------------------------------------------------------------------
@@ -291,10 +307,7 @@ void OWWriteBit(unsigned char bit_value)
 unsigned char OWReadBit()
 {
    // platform specific
-
-   // TMEX API TEST BUILD
-   return (unsigned char)TMTouchBit(session_handle,0x01);
-
+	return OWI_ReadBit(buses[currentBus]);
 }
 
 // TEST BUILD
