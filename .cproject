@@ -32,6 +32,7 @@
 								<option id="de.innot.avreclipse.compiler.option.optimize.834759183" name="Optimization Level" superClass="de.innot.avreclipse.compiler.option.optimize" value="de.innot.avreclipse.compiler.optimize.size" valueType="enumerated"/>
 								<option id="de.innot.avreclipse.compiler.option.incpath.134622982" name="Include Paths (-I)" superClass="de.innot.avreclipse.compiler.option.incpath" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/uart}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/avrlibs/millis}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/owatmellib/src}&quot;"/>
 								</option>
 								<inputType id="de.innot.avreclipse.compiler.winavr.input.1267259338" name="C Source Files" superClass="de.innot.avreclipse.compiler.winavr.input"/>
