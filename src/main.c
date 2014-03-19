@@ -37,6 +37,35 @@ unsigned char buses[5] =
 #define MAX_DATABLOCK	64
 #define WAIT_TIMEOUT_MS	500
 
+int OWSearchROM(unsigned char* address) {
+
+	unsigned char tmp_rom[8];
+
+	for (currentBus = 0; currentBus < numBuses; currentBus++) {
+		if (OWI_DetectPresence(buses[currentBus])) {
+			memcpy(tmp_rom, address, 8);
+			OWI_SearchRom(tmp_rom, 64, buses[currentBus]);
+			if (memcmp(address, tmp_rom, 8) == 0) {
+				return TRUE;
+			}
+		}
+	}
+	return FALSE;
+}
+
+int OWMatchROM(unsigned char* address) {
+	if (OWI_DetectPresence(buses[currentBus])) {
+		_delay_ms(5);
+		OWI_MatchRom(address, buses[currentBus]);
+		return TRUE;
+	}
+	return FALSE;
+//	OWI_DetectPresence(buses[currentBus]);
+//	OWI_MatchRom(address, buses[currentBus]);
+//	return TRUE;
+}
+
+
 int waitForBytes(int num) {
 	int count = 0;
 	while (uart_available() < num) {
@@ -241,7 +270,7 @@ void adapterSetSpeed(void) {
 
 void adapterGetSpeed(void) {
 	uart_putc(RET_SUCCESS);
-	uart_putc(0); //always return SPEED_REGULAR
+	writeInt(0); //always return SPEED_REGULAR
 	uart_flush();
 }
 
@@ -274,7 +303,7 @@ int OWSearch() {
 
 	while (!(_presence & buses[currentBus])) {
 		currentBus++;
-		if (currentBus == numBuses) {
+		if (currentBus == NUM_BUSES) {
 			LastDeviceFlag = TRUE;
 			return FALSE;
 		}
@@ -297,22 +326,23 @@ void adapterFindFirstDevice(void) {
 	currentBus = 0;
 	_presence = OWI_DetectPresence(BUSES);
 	uart_putc(RET_SUCCESS);
-//	uart_putc(0);
-//	uart_putc(0);
-//	uart_putc(0);
 	uart_putc(OWSearch());
-//	uart_putc(FALSE);
 	uart_flush();
 }
 
 void adapterFindNextDevice(void) {
 	uart_putc(RET_SUCCESS);
-	uart_putc(OWSearch());
+	if (currentBus == NUM_BUSES) {
+		uart_putc(FALSE);
+	} else {
+		uart_putc(OWSearch());
+	}
 	uart_flush();
 }
 
 void adapterGetAddress(void) {
 	uart_putc(RET_SUCCESS);
+//	OWI_ReadRom(ROM_NO, buses[currentBus]);
 	for (int i = 0; i < 8; i++) {
 		uart_putc(ROM_NO[i]);
 	}
@@ -393,9 +423,34 @@ void adapterCanProgram(void) {
 	uart_flush();
 }
 
+void adapterIsPresent(void) {
+	unsigned char address[8];
+
+	if (!readBytes(address, 8)) {
+		writeError();
+		return;
+	}
+
+	uart_putc(RET_SUCCESS);
+	uart_putc(OWSearchROM(address));
+	uart_flush();
+}
+
+void adapterSelect(void) {
+	unsigned char address[8];
+	if (!readBytes(address, 8)) {
+		writeError();
+		return;
+	}
+
+	uart_putc(RET_SUCCESS);
+	uart_putc(OWMatchROM(address));
+	uart_flush();
+}
+
 int main(void) {
 
-	uart_init(UART_BAUD_SELECT_DOUBLE_SPEED(57600, F_CPU));
+	uart_init(UART_BAUD_SELECT_DOUBLE_SPEED(9600, F_CPU));
 	sei();
 	BUSES = 0;
 	numBuses = NUM_BUSES > 5 ? 5 : NUM_BUSES;
@@ -516,6 +571,12 @@ int main(void) {
 			break;
 		case CMD_CANPROGRAM:
 			adapterCanProgram();
+			break;
+		case CMD_ISPRESENT:
+			adapterIsPresent();
+			break;
+		case CMD_SELECT:
+			adapterSelect();
 			break;
 		default:
 			break;

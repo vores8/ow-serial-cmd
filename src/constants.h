@@ -72,6 +72,9 @@
 #define CMD_CANOVERDRIVE                  0x2F
 #define CMD_CANPROGRAM                    0x30
    /*------------------------------------------------------------*/
+#define CMD_ISPRESENT                     0x40
+#define CMD_SELECT                    	  0x41
+
 
 
 #endif /* CONSTANTS_H_ */
